@@ -31,16 +31,18 @@ exports.assocRoleAm = function(roleName,amName,token,subClaims) {
 
 /**
  * Authenticate to the service and returns a token to be used as a profile to execute the CLI without the need for re-authentication
- * Authenticate to the service and returns a token to be used as a profile to execute the CLI without the need for re-authentication Options:   access-id -    Access ID   access-type -    Access Type (access_key/saml/ldap/azure_ad/aws_iam)   access-key -    Access key (relevant only for access-type=access_key)   cloud-id -    The cloued identity (relevant only for access-type=azure_ad,awd_im,auid)   ldap_proxy_url -    Address URL for LDAP proxy (relevant only for access-type=ldap)
+ * Authenticate to the service and returns a token to be used as a profile to execute the CLI without the need for re-authentication Options:   access-id -    Access ID   access-type -    Access Type (access_key/password/saml/ldap/azure_ad/aws_iam)   access-key -    Access key (relevant only for access-type=access_key)   admin-password -    Password (relevant only for access-type=password)   admin-email -    Email (relevant only for access-type=password)   cloud-id -    The cloued identity (relevant only for access-type=azure_ad,awd_im,auid)   ldap_proxy_url -    Address URL for LDAP proxy (relevant only for access-type=ldap)
  *
- * accessId String Access ID
- * accessType String Access Type (access_key/saml/ldap/azure_ad/aws_iam) (optional)
+ * accessId String Access ID (optional)
+ * accessType String Access Type (access_key/password/saml/ldap/azure_ad/aws_iam) (optional)
  * accessKey String Access key (relevant only for access-type=access_key) (optional)
+ * adminPassword String Password (relevant only for access-type=password) (optional)
+ * adminEmail String Email (relevant only for access-type=password) (optional)
  * cloudId String The cloued identity (relevant only for access-type=azure_ad,awd_im,auid) (optional)
  * ldap_proxy_url String Address URL for LDAP proxy (relevant only for access-type=ldap) (optional)
  * returns ReplyObj
  **/
-exports.auth = function(accessId,accessType,accessKey,cloudId,ldap_proxy_url) {
+exports.auth = function(accessId,accessType,accessKey,adminPassword,adminEmail,cloudId,ldap_proxy_url) {
   return new Promise(function(resolve, reject) {
     var examples = {};
     examples['application/json'] = {
@@ -60,16 +62,18 @@ exports.auth = function(accessId,accessType,accessKey,cloudId,ldap_proxy_url) {
 
 /**
  * Configure client profile.
- * Configure client profile. Options:   access-id -    Access ID   access-key -    Access Key   access-type -    Access Type (access_key/azure_ad/saml/ldap/aws_iam)   ldap_proxy_url -    Address URL for ldap proxy (relevant only for access-type=ldap)   azure_ad_object_id -    Azure Active Directory ObjectId (relevant only for access-type=azure_ad)
+ * Configure client profile. Options:   access-id -    Access ID   access-key -    Access Key   admin-password -    Password (relevant only for access-type=password)   admin-email -    Email (relevant only for access-type=password)   access-type -    Access Type (access_key/password/azure_ad/saml/ldap/aws_iam)   ldap_proxy_url -    Address URL for ldap proxy (relevant only for access-type=ldap)   azure_ad_object_id -    Azure Active Directory ObjectId (relevant only for access-type=azure_ad)
  *
- * accessId String Access ID
+ * accessId String Access ID (optional)
  * accessKey String Access Key (optional)
- * accessType String Access Type (access_key/azure_ad/saml/ldap/aws_iam) (optional)
+ * adminPassword String Password (relevant only for access-type=password) (optional)
+ * adminEmail String Email (relevant only for access-type=password) (optional)
+ * accessType String Access Type (access_key/password/azure_ad/saml/ldap/aws_iam) (optional)
  * ldap_proxy_url String Address URL for ldap proxy (relevant only for access-type=ldap) (optional)
  * azure_ad_object_id String Azure Active Directory ObjectId (relevant only for access-type=azure_ad) (optional)
  * returns ReplyObj
  **/
-exports.configure = function(accessId,accessKey,accessType,ldap_proxy_url,azure_ad_object_id) {
+exports.configure = function(accessId,accessKey,adminPassword,adminEmail,accessType,ldap_proxy_url,azure_ad_object_id) {
   return new Promise(function(resolve, reject) {
     var examples = {};
     examples['application/json'] = {
@@ -611,8 +615,8 @@ exports.deleteAuthMethod = function(name,token) {
 
 
 /**
- * Delete an item
- * Delete an item Options:   name -    Item name   token -    Access token
+ * Delete an item or an item version
+ * Delete an item or an item version Options:   name -    Item name   token -    Access token
  *
  * name String Item name
  * token String Access token

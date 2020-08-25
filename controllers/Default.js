@@ -21,9 +21,11 @@ module.exports.auth = function auth (req, res, next) {
   var accessId = req.swagger.params['access-id'].value;
   var accessType = req.swagger.params['access-type'].value;
   var accessKey = req.swagger.params['access-key'].value;
+  var adminPassword = req.swagger.params['admin-password'].value;
+  var adminEmail = req.swagger.params['admin-email'].value;
   var cloudId = req.swagger.params['cloud-id'].value;
   var ldap_proxy_url = req.swagger.params['ldap_proxy_url'].value;
-  Default.auth(accessId,accessType,accessKey,cloudId,ldap_proxy_url)
+  Default.auth(accessId,accessType,accessKey,adminPassword,adminEmail,cloudId,ldap_proxy_url)
     .then(function (response) {
       utils.writeJson(res, response);
     })
@@ -35,10 +37,12 @@ module.exports.auth = function auth (req, res, next) {
 module.exports.configure = function configure (req, res, next) {
   var accessId = req.swagger.params['access-id'].value;
   var accessKey = req.swagger.params['access-key'].value;
+  var adminPassword = req.swagger.params['admin-password'].value;
+  var adminEmail = req.swagger.params['admin-email'].value;
   var accessType = req.swagger.params['access-type'].value;
   var ldap_proxy_url = req.swagger.params['ldap_proxy_url'].value;
   var azure_ad_object_id = req.swagger.params['azure_ad_object_id'].value;
-  Default.configure(accessId,accessKey,accessType,ldap_proxy_url,azure_ad_object_id)
+  Default.configure(accessId,accessKey,adminPassword,adminEmail,accessType,ldap_proxy_url,azure_ad_object_id)
     .then(function (response) {
       utils.writeJson(res, response);
     })

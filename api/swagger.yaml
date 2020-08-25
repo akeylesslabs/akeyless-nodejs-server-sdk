@@ -81,25 +81,37 @@ paths:
         \ to execute the CLI without the need for re-authentication"
       description: "Authenticate to the service and returns a token to be used as\
         \ a profile to execute the CLI without the need for re-authentication\nOptions:\n\
-        \  access-id -    Access ID\n  access-type -    Access Type (access_key/saml/ldap/azure_ad/aws_iam)\n\
+        \  access-id -    Access ID\n  access-type -    Access Type (access_key/password/saml/ldap/azure_ad/aws_iam)\n\
         \  access-key -    Access key (relevant only for access-type=access_key)\n\
-        \  cloud-id -    The cloued identity (relevant only for access-type=azure_ad,awd_im,auid)\n\
+        \  admin-password -    Password (relevant only for access-type=password)\n\
+        \  admin-email -    Email (relevant only for access-type=password)\n  cloud-id\
+        \ -    The cloued identity (relevant only for access-type=azure_ad,awd_im,auid)\n\
         \  ldap_proxy_url -    Address URL for LDAP proxy (relevant only for access-type=ldap)"
       operationId: "auth"
       parameters:
       - name: "access-id"
         in: "query"
         description: "Access ID"
-        required: true
+        required: false
         type: "string"
       - name: "access-type"
         in: "query"
-        description: "Access Type (access_key/saml/ldap/azure_ad/aws_iam)"
+        description: "Access Type (access_key/password/saml/ldap/azure_ad/aws_iam)"
         required: false
         type: "string"
       - name: "access-key"
         in: "query"
         description: "Access key (relevant only for access-type=access_key)"
+        required: false
+        type: "string"
+      - name: "admin-password"
+        in: "query"
+        description: "Password (relevant only for access-type=password)"
+        required: false
+        type: "string"
+      - name: "admin-email"
+        in: "query"
+        description: "Email (relevant only for access-type=password)"
         required: false
         type: "string"
       - name: "cloud-id"
@@ -142,7 +154,9 @@ paths:
     post:
       summary: "Configure client profile."
       description: "Configure client profile.\nOptions:\n  access-id -    Access ID\n\
-        \  access-key -    Access Key\n  access-type -    Access Type (access_key/azure_ad/saml/ldap/aws_iam)\n\
+        \  access-key -    Access Key\n  admin-password -    Password (relevant only\
+        \ for access-type=password)\n  admin-email -    Email (relevant only for access-type=password)\n\
+        \  access-type -    Access Type (access_key/password/azure_ad/saml/ldap/aws_iam)\n\
         \  ldap_proxy_url -    Address URL for ldap proxy (relevant only for access-type=ldap)\n\
         \  azure_ad_object_id -    Azure Active Directory ObjectId (relevant only\
         \ for access-type=azure_ad)"
@@ -151,16 +165,26 @@ paths:
       - name: "access-id"
         in: "query"
         description: "Access ID"
-        required: true
+        required: false
         type: "string"
       - name: "access-key"
         in: "query"
         description: "Access Key"
         required: false
         type: "string"
+      - name: "admin-password"
+        in: "query"
+        description: "Password (relevant only for access-type=password)"
+        required: false
+        type: "string"
+      - name: "admin-email"
+        in: "query"
+        description: "Email (relevant only for access-type=password)"
+        required: false
+        type: "string"
       - name: "access-type"
         in: "query"
-        description: "Access Type (access_key/azure_ad/saml/ldap/aws_iam)"
+        description: "Access Type (access_key/password/azure_ad/saml/ldap/aws_iam)"
         required: false
         type: "string"
       - name: "ldap_proxy_url"
@@ -1479,9 +1503,9 @@ paths:
       x-swagger-router-controller: "Default"
   /delete-item:
     post:
-      summary: "Delete an item"
-      description: "Delete an item\nOptions:\n  name -    Item name\n  token -   \
-        \ Access token"
+      summary: "Delete an item or an item version"
+      description: "Delete an item or an item version\nOptions:\n  name -    Item\
+        \ name\n  token -    Access token"
       operationId: "deleteItem"
       parameters:
       - name: "name"
