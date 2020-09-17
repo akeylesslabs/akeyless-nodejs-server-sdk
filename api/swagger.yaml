@@ -81,12 +81,13 @@ paths:
         \ to execute the CLI without the need for re-authentication"
       description: "Authenticate to the service and returns a token to be used as\
         \ a profile to execute the CLI without the need for re-authentication\nOptions:\n\
-        \  access-id -    Access ID\n  access-type -    Access Type (access_key/password/saml/ldap/azure_ad/aws_iam)\n\
+        \  access-id -    Access ID\n  access-type -    Access Type (access_key/password/saml/ldap/azure_ad/aws_iam/universal_identity)\n\
         \  access-key -    Access key (relevant only for access-type=access_key)\n\
+        \  cloud-id -    The cloued identity (relevant only for access-type=azure_ad,awd_im)\n\
+        \  uid_token -    The universal_identity token (relevant only for access-type=universal_identity)\n\
         \  admin-password -    Password (relevant only for access-type=password)\n\
-        \  admin-email -    Email (relevant only for access-type=password)\n  cloud-id\
-        \ -    The cloued identity (relevant only for access-type=azure_ad,awd_im,auid)\n\
-        \  ldap_proxy_url -    Address URL for LDAP proxy (relevant only for access-type=ldap)"
+        \  admin-email -    Email (relevant only for access-type=password)\n  ldap_proxy_url\
+        \ -    Address URL for LDAP proxy (relevant only for access-type=ldap)"
       operationId: "auth"
       parameters:
       - name: "access-id"
@@ -96,12 +97,22 @@ paths:
         type: "string"
       - name: "access-type"
         in: "query"
-        description: "Access Type (access_key/password/saml/ldap/azure_ad/aws_iam)"
+        description: "Access Type (access_key/password/saml/ldap/azure_ad/aws_iam/universal_identity)"
         required: false
         type: "string"
       - name: "access-key"
         in: "query"
         description: "Access key (relevant only for access-type=access_key)"
+        required: false
+        type: "string"
+      - name: "cloud-id"
+        in: "query"
+        description: "The cloued identity (relevant only for access-type=azure_ad,awd_im)"
+        required: false
+        type: "string"
+      - name: "uid_token"
+        in: "query"
+        description: "The universal_identity token (relevant only for access-type=universal_identity)"
         required: false
         type: "string"
       - name: "admin-password"
@@ -112,11 +123,6 @@ paths:
       - name: "admin-email"
         in: "query"
         description: "Email (relevant only for access-type=password)"
-        required: false
-        type: "string"
-      - name: "cloud-id"
-        in: "query"
-        description: "The cloued identity (relevant only for access-type=azure_ad,awd_im,auid)"
         required: false
         type: "string"
       - name: "ldap_proxy_url"
@@ -154,9 +160,10 @@ paths:
     post:
       summary: "Configure client profile."
       description: "Configure client profile.\nOptions:\n  access-id -    Access ID\n\
-        \  access-key -    Access Key\n  admin-password -    Password (relevant only\
-        \ for access-type=password)\n  admin-email -    Email (relevant only for access-type=password)\n\
-        \  access-type -    Access Type (access_key/password/azure_ad/saml/ldap/aws_iam)\n\
+        \  access-key -    Access Key\n  access-type -    Access Type (access_key/password/azure_ad/saml/ldap/aws_iam/universal_identity)\n\
+        \  admin-password -    Password (relevant only for access-type=password)\n\
+        \  admin-email -    Email (relevant only for access-type=password)\n  uid_token\
+        \ -    The universal_identity token (relevant only for access-type=universal_identity)\n\
         \  ldap_proxy_url -    Address URL for ldap proxy (relevant only for access-type=ldap)\n\
         \  azure_ad_object_id -    Azure Active Directory ObjectId (relevant only\
         \ for access-type=azure_ad)"
@@ -172,6 +179,11 @@ paths:
         description: "Access Key"
         required: false
         type: "string"
+      - name: "access-type"
+        in: "query"
+        description: "Access Type (access_key/password/azure_ad/saml/ldap/aws_iam/universal_identity)"
+        required: false
+        type: "string"
       - name: "admin-password"
         in: "query"
         description: "Password (relevant only for access-type=password)"
@@ -182,9 +194,9 @@ paths:
         description: "Email (relevant only for access-type=password)"
         required: false
         type: "string"
-      - name: "access-type"
+      - name: "uid_token"
         in: "query"
-        description: "Access Type (access_key/password/azure_ad/saml/ldap/aws_iam)"
+        description: "The universal_identity token (relevant only for access-type=universal_identity)"
         required: false
         type: "string"
       - name: "ldap_proxy_url"
@@ -680,7 +692,8 @@ paths:
         \ SAML\nOptions:\n  name -    Auth Method name\n  access-expires -    Access\
         \ expiration date in Unix timestamp (select 0 for access without expiry date)\n\
         \  bound-ips -    A CIDR whitelist of the IPs that the access is restricted\
-        \ to\n  idp-metadata-url -    IDP metadata url\n  token -    Access token"
+        \ to\n  idp-metadata-url -    IDP metadata url\n  idp-metadata-xml -    IDP\
+        \ metadata xml\n  token -    Access token"
       operationId: "createAuthMethodSaml"
       parameters:
       - name: "name"
@@ -702,6 +715,11 @@ paths:
       - name: "idp-metadata-url"
         in: "query"
         description: "IDP metadata url"
+        required: true
+        type: "string"
+      - name: "idp-metadata-xml"
+        in: "query"
+        description: "IDP metadata xml"
         required: true
         type: "string"
       - name: "token"
@@ -739,10 +757,11 @@ paths:
     post:
       summary: "Creates a new dynamic secret item"
       description: "Creates a new dynamic secret item\nOptions:\n  name -    Dynamic\
-        \ secret name\n  metadata -    Metadata about the dynamic secret\n  key -\
-        \    The name of a key that used to encrypt the dynamic secret values (if\
-        \ empty, the account default protectionKey key will be used)\n  token -  \
-        \  Access token"
+        \ secret name\n  metadata -    Metadata about the dynamic secret\n  tag -\
+        \    List of the tags attached to this secret. To specify multiple tags use\
+        \ argument multiple times- -t Tag1 -t Tag2\n  key -    The name of a key that\
+        \ used to encrypt the dynamic secret values (if empty, the account default\
+        \ protectionKey key will be used)\n  token -    Access token"
       operationId: "createDynamicSecret"
       parameters:
       - name: "name"
@@ -753,6 +772,12 @@ paths:
       - name: "metadata"
         in: "query"
         description: "Metadata about the dynamic secret"
+        required: false
+        type: "string"
+      - name: "tag"
+        in: "query"
+        description: "List of the tags attached to this secret. To specify multiple\
+          \ tags use argument multiple times- -t Tag1 -t Tag2"
         required: false
         type: "string"
       - name: "key"
@@ -797,11 +822,13 @@ paths:
       summary: "Creates a new key"
       description: "Creates a new key\nOptions:\n  name -    Key name\n  alg -   \
         \ Key type. options- [AES128GCM, AES256GCM, AES128SIV, AES256SIV, RSA1024,\
-        \ RSA2048]\n  metadata -    Metadata about the key\n  split-level -    The\
-        \ number of fragments that the item will be split into (not includes customer\
-        \ fragment)\n  customer-frg-id -    The customer fragment ID that will be\
-        \ used to create the key (if empty, the key will be created independently\
-        \ of a customer fragment)\n  token -    Access token"
+        \ RSA2048]\n  metadata -    Metadata about the key\n  tag -    List of the\
+        \ tags attached to this key. To specify multiple tags use argument multiple\
+        \ times- -t Tag1 -t Tag2\n  split-level -    The number of fragments that\
+        \ the item will be split into (not includes customer fragment)\n  customer-frg-id\
+        \ -    The customer fragment ID that will be used to create the key (if empty,\
+        \ the key will be created independently of a customer fragment)\n  token -\
+        \    Access token"
       operationId: "createKey"
       parameters:
       - name: "name"
@@ -818,6 +845,12 @@ paths:
       - name: "metadata"
         in: "query"
         description: "Metadata about the key"
+        required: false
+        type: "string"
+      - name: "tag"
+        in: "query"
+        description: "List of the tags attached to this key. To specify multiple tags\
+          \ use argument multiple times- -t Tag1 -t Tag2"
         required: false
         type: "string"
       - name: "split-level"
@@ -1097,10 +1130,11 @@ paths:
       summary: "Creates a new secret item"
       description: "Creates a new secret item\nOptions:\n  name -    Secret name\n\
         \  value -    The secret value\n  metadata -    Metadata about the secret\n\
-        \  key -    The name of a key that used to encrypt the secret value (if empty,\
-        \ the account default protectionKey key will be used)\n  multiline -    The\
-        \ provided value is a multiline value (separated by '\\n')\n  token -    Access\
-        \ token"
+        \  tag -    List of the tags attached to this secret. To specify multiple\
+        \ tags use argument multiple times- -t Tag1 -t Tag2\n  key -    The name of\
+        \ a key that used to encrypt the secret value (if empty, the account default\
+        \ protectionKey key will be used)\n  multiline -    The provided value is\
+        \ a multiline value (separated by '\\n')\n  token -    Access token"
       operationId: "createSecret"
       parameters:
       - name: "name"
@@ -1116,6 +1150,12 @@ paths:
       - name: "metadata"
         in: "query"
         description: "Metadata about the secret"
+        required: false
+        type: "string"
+      - name: "tag"
+        in: "query"
+        description: "List of the tags attached to this secret. To specify multiple\
+          \ tags use argument multiple times- -t Tag1 -t Tag2"
         required: false
         type: "string"
       - name: "key"
@@ -2433,8 +2473,8 @@ paths:
         \ The item types list of the requested items. In case it is empty, all types\
         \ of items will be returned. options- [key, static-secret, dynamic-secret]\n\
         \  ItemsTypes -    ItemsTypes\n  filter -    Filter by item name or part of\
-        \ it\n  path -    Path to folder\n  pagination-token -    Next page reference\n\
-        \  token -    Access token"
+        \ it\n  tag -    Filter by item tag\n  path -    Path to folder\n  pagination-token\
+        \ -    Next page reference\n  token -    Access token"
       operationId: "listItems"
       parameters:
       - name: "type"
@@ -2451,6 +2491,11 @@ paths:
       - name: "filter"
         in: "query"
         description: "Filter by item name or part of it"
+        required: false
+        type: "string"
+      - name: "tag"
+        in: "query"
+        description: "Filter by item tag"
         required: false
         type: "string"
       - name: "path"
@@ -2505,6 +2550,55 @@ paths:
         in: "query"
         description: "Next page reference"
         required: false
+        type: "string"
+      - name: "token"
+        in: "query"
+        description: "Access token"
+        required: true
+        type: "string"
+      responses:
+        "200":
+          description: "response"
+          schema:
+            $ref: "#/definitions/ReplyObj"
+        "400":
+          description: "Invalid request"
+          schema:
+            $ref: "#/definitions/ErrorReplyObj"
+        "401":
+          description: "Unauthorized access"
+          schema:
+            $ref: "#/definitions/ErrorReplyObj"
+        "403":
+          description: "Forbidden access"
+          schema:
+            $ref: "#/definitions/ErrorReplyObj"
+        "404":
+          description: "Item not found"
+          schema:
+            $ref: "#/definitions/ErrorReplyObj"
+        default:
+          description: "Unspecified error in request"
+          schema:
+            $ref: "#/definitions/ErrorReplyObj"
+      x-swagger-router-controller: "Default"
+  /reverse-rbac:
+    post:
+      summary: "See which authentication methods have access to a particular object"
+      description: "See which authentication methods have access to a particular object\n\
+        Options:\n  path -    Path to an object\n  type -    Type of object (item,\
+        \ am, role)\n  token -    Access token"
+      operationId: "reverseRbac"
+      parameters:
+      - name: "path"
+        in: "query"
+        description: "Path to an object"
+        required: true
+        type: "string"
+      - name: "type"
+        in: "query"
+        description: "Type of object (item, am, role)"
+        required: true
         type: "string"
       - name: "token"
         in: "query"
@@ -2725,7 +2819,11 @@ paths:
       summary: "Update item name and metadata"
       description: "Update item name and metadata\nOptions:\n  name -    Current item\
         \ name\n  new-name -    New item name\n  new-metadata -    New item metadata\n\
-        \  token -    Access token"
+        \  add-tag -    List of the new tags that will be attached to this item. To\
+        \ specify multiple tags use argument multiple times- --add-tag Tag1 --add-tag\
+        \ Tag2\n  rm-tag -    List of the existent tags that will be removed from\
+        \ this item. To specify multiple tags use argument multiple times- --rm-tag\
+        \ Tag1 --rm-tag Tag2\n  token -    Access token"
       operationId: "updateItem"
       parameters:
       - name: "name"
@@ -2741,6 +2839,20 @@ paths:
       - name: "new-metadata"
         in: "query"
         description: "New item metadata"
+        required: false
+        type: "string"
+      - name: "add-tag"
+        in: "query"
+        description: "List of the new tags that will be attached to this item. To\
+          \ specify multiple tags use argument multiple times- --add-tag Tag1 --add-tag\
+          \ Tag2"
+        required: false
+        type: "string"
+      - name: "rm-tag"
+        in: "query"
+        description: "List of the existent tags that will be removed from this item.\
+          \ To specify multiple tags use argument multiple times- --rm-tag Tag1 --rm-tag\
+          \ Tag2"
         required: false
         type: "string"
       - name: "token"
@@ -2896,13 +3008,14 @@ paths:
       description: "Upload a PKCS#12 key and certificates\nOptions:\n  name -    Name\
         \ of key to be created\n  in -    PKCS#12 input file (private key and certificate\
         \ only)\n  passphrase -    Passphrase to unlock the pkcs#12 bundle\n  metadata\
-        \ -    A metadata about the key\n  split-level -    The number of fragments\
-        \ that the item will be split into\n  customer-frg-id -    The customer fragment\
-        \ ID that will be used to split the key (if empty, the key will be created\
-        \ independently of a customer fragment)\n  cert -    Path to a file that contain\
-        \ the certificate in a PEM format. If this parameter is not empty, the certificate\
-        \ will be taken from here and not from the PKCS#12 input file\n  token - \
-        \   Access token"
+        \ -    A metadata about the key\n  tag -    List of the tags attached to this\
+        \ key. To specify multiple tags use argument multiple times- -t Tag1 -t Tag2\n\
+        \  split-level -    The number of fragments that the item will be split into\n\
+        \  customer-frg-id -    The customer fragment ID that will be used to split\
+        \ the key (if empty, the key will be created independently of a customer fragment)\n\
+        \  cert -    Path to a file that contain the certificate in a PEM format.\
+        \ If this parameter is not empty, the certificate will be taken from here\
+        \ and not from the PKCS#12 input file\n  token -    Access token"
       operationId: "uploadPkcs12"
       parameters:
       - name: "name"
@@ -2923,6 +3036,12 @@ paths:
       - name: "metadata"
         in: "query"
         description: "A metadata about the key"
+        required: false
+        type: "string"
+      - name: "tag"
+        in: "query"
+        description: "List of the tags attached to this key. To specify multiple tags\
+          \ use argument multiple times- -t Tag1 -t Tag2"
         required: false
         type: "string"
       - name: "split-level"
@@ -2981,10 +3100,12 @@ paths:
         \  alg -    Key type. options- [RSA1024, RSA2048]\n  rsa-key-file-path - \
         \   RSA private key file path\n  cert -    Path to a file that contain the\
         \ certificate in a PEM format.\n  metadata -    A metadata about the key\n\
-        \  split-level -    The number of fragments that the item will be split into\n\
-        \  customer-frg-id -    The customer fragment ID that will be used to split\
-        \ the key (if empty, the key will be created independently of a customer fragment)\n\
-        \  token -    Access token"
+        \  tag -    List of the tags attached to this key. To specify multiple tags\
+        \ use argument multiple times- -t Tag1 -t Tag2\n  split-level -    The number\
+        \ of fragments that the item will be split into\n  customer-frg-id -    The\
+        \ customer fragment ID that will be used to split the key (if empty, the key\
+        \ will be created independently of a customer fragment)\n  token -    Access\
+        \ token"
       operationId: "uploadRsa"
       parameters:
       - name: "name"
@@ -3010,6 +3131,12 @@ paths:
       - name: "metadata"
         in: "query"
         description: "A metadata about the key"
+        required: false
+        type: "string"
+      - name: "tag"
+        in: "query"
+        description: "List of the tags attached to this key. To specify multiple tags\
+          \ use argument multiple times- -t Tag1 -t Tag2"
         required: false
         type: "string"
       - name: "split-level"

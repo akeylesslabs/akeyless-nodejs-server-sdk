@@ -31,18 +31,19 @@ exports.assocRoleAm = function(roleName,amName,token,subClaims) {
 
 /**
  * Authenticate to the service and returns a token to be used as a profile to execute the CLI without the need for re-authentication
- * Authenticate to the service and returns a token to be used as a profile to execute the CLI without the need for re-authentication Options:   access-id -    Access ID   access-type -    Access Type (access_key/password/saml/ldap/azure_ad/aws_iam)   access-key -    Access key (relevant only for access-type=access_key)   admin-password -    Password (relevant only for access-type=password)   admin-email -    Email (relevant only for access-type=password)   cloud-id -    The cloued identity (relevant only for access-type=azure_ad,awd_im,auid)   ldap_proxy_url -    Address URL for LDAP proxy (relevant only for access-type=ldap)
+ * Authenticate to the service and returns a token to be used as a profile to execute the CLI without the need for re-authentication Options:   access-id -    Access ID   access-type -    Access Type (access_key/password/saml/ldap/azure_ad/aws_iam/universal_identity)   access-key -    Access key (relevant only for access-type=access_key)   cloud-id -    The cloued identity (relevant only for access-type=azure_ad,awd_im)   uid_token -    The universal_identity token (relevant only for access-type=universal_identity)   admin-password -    Password (relevant only for access-type=password)   admin-email -    Email (relevant only for access-type=password)   ldap_proxy_url -    Address URL for LDAP proxy (relevant only for access-type=ldap)
  *
  * accessId String Access ID (optional)
- * accessType String Access Type (access_key/password/saml/ldap/azure_ad/aws_iam) (optional)
+ * accessType String Access Type (access_key/password/saml/ldap/azure_ad/aws_iam/universal_identity) (optional)
  * accessKey String Access key (relevant only for access-type=access_key) (optional)
+ * cloudId String The cloued identity (relevant only for access-type=azure_ad,awd_im) (optional)
+ * uid_token String The universal_identity token (relevant only for access-type=universal_identity) (optional)
  * adminPassword String Password (relevant only for access-type=password) (optional)
  * adminEmail String Email (relevant only for access-type=password) (optional)
- * cloudId String The cloued identity (relevant only for access-type=azure_ad,awd_im,auid) (optional)
  * ldap_proxy_url String Address URL for LDAP proxy (relevant only for access-type=ldap) (optional)
  * returns ReplyObj
  **/
-exports.auth = function(accessId,accessType,accessKey,adminPassword,adminEmail,cloudId,ldap_proxy_url) {
+exports.auth = function(accessId,accessType,accessKey,cloudId,uid_token,adminPassword,adminEmail,ldap_proxy_url) {
   return new Promise(function(resolve, reject) {
     var examples = {};
     examples['application/json'] = {
@@ -62,18 +63,19 @@ exports.auth = function(accessId,accessType,accessKey,adminPassword,adminEmail,c
 
 /**
  * Configure client profile.
- * Configure client profile. Options:   access-id -    Access ID   access-key -    Access Key   admin-password -    Password (relevant only for access-type=password)   admin-email -    Email (relevant only for access-type=password)   access-type -    Access Type (access_key/password/azure_ad/saml/ldap/aws_iam)   ldap_proxy_url -    Address URL for ldap proxy (relevant only for access-type=ldap)   azure_ad_object_id -    Azure Active Directory ObjectId (relevant only for access-type=azure_ad)
+ * Configure client profile. Options:   access-id -    Access ID   access-key -    Access Key   access-type -    Access Type (access_key/password/azure_ad/saml/ldap/aws_iam/universal_identity)   admin-password -    Password (relevant only for access-type=password)   admin-email -    Email (relevant only for access-type=password)   uid_token -    The universal_identity token (relevant only for access-type=universal_identity)   ldap_proxy_url -    Address URL for ldap proxy (relevant only for access-type=ldap)   azure_ad_object_id -    Azure Active Directory ObjectId (relevant only for access-type=azure_ad)
  *
  * accessId String Access ID (optional)
  * accessKey String Access Key (optional)
+ * accessType String Access Type (access_key/password/azure_ad/saml/ldap/aws_iam/universal_identity) (optional)
  * adminPassword String Password (relevant only for access-type=password) (optional)
  * adminEmail String Email (relevant only for access-type=password) (optional)
- * accessType String Access Type (access_key/password/azure_ad/saml/ldap/aws_iam) (optional)
+ * uid_token String The universal_identity token (relevant only for access-type=universal_identity) (optional)
  * ldap_proxy_url String Address URL for ldap proxy (relevant only for access-type=ldap) (optional)
  * azure_ad_object_id String Azure Active Directory ObjectId (relevant only for access-type=azure_ad) (optional)
  * returns ReplyObj
  **/
-exports.configure = function(accessId,accessKey,adminPassword,adminEmail,accessType,ldap_proxy_url,azure_ad_object_id) {
+exports.configure = function(accessId,accessKey,accessType,adminPassword,adminEmail,uid_token,ldap_proxy_url,azure_ad_object_id) {
   return new Promise(function(resolve, reject) {
     var examples = {};
     examples['application/json'] = {
@@ -258,16 +260,17 @@ exports.createAuthMethodOauth2 = function(name,boundClientsIds,issuer,jwksUri,au
 
 /**
  * Create a new Auth Method that will be able to authenticate using SAML
- * Create a new Auth Method that will be able to authenticate using SAML Options:   name -    Auth Method name   access-expires -    Access expiration date in Unix timestamp (select 0 for access without expiry date)   bound-ips -    A CIDR whitelist of the IPs that the access is restricted to   idp-metadata-url -    IDP metadata url   token -    Access token
+ * Create a new Auth Method that will be able to authenticate using SAML Options:   name -    Auth Method name   access-expires -    Access expiration date in Unix timestamp (select 0 for access without expiry date)   bound-ips -    A CIDR whitelist of the IPs that the access is restricted to   idp-metadata-url -    IDP metadata url   idp-metadata-xml -    IDP metadata xml   token -    Access token
  *
  * name String Auth Method name
  * idpMetadataUrl String IDP metadata url
+ * idpMetadataXml String IDP metadata xml
  * token String Access token
  * accessExpires String Access expiration date in Unix timestamp (select 0 for access without expiry date) (optional)
  * boundIps String A CIDR whitelist of the IPs that the access is restricted to (optional)
  * returns ReplyObj
  **/
-exports.createAuthMethodSaml = function(name,idpMetadataUrl,token,accessExpires,boundIps) {
+exports.createAuthMethodSaml = function(name,idpMetadataUrl,idpMetadataXml,token,accessExpires,boundIps) {
   return new Promise(function(resolve, reject) {
     var examples = {};
     examples['application/json'] = {
@@ -287,15 +290,16 @@ exports.createAuthMethodSaml = function(name,idpMetadataUrl,token,accessExpires,
 
 /**
  * Creates a new dynamic secret item
- * Creates a new dynamic secret item Options:   name -    Dynamic secret name   metadata -    Metadata about the dynamic secret   key -    The name of a key that used to encrypt the dynamic secret values (if empty, the account default protectionKey key will be used)   token -    Access token
+ * Creates a new dynamic secret item Options:   name -    Dynamic secret name   metadata -    Metadata about the dynamic secret   tag -    List of the tags attached to this secret. To specify multiple tags use argument multiple times- -t Tag1 -t Tag2   key -    The name of a key that used to encrypt the dynamic secret values (if empty, the account default protectionKey key will be used)   token -    Access token
  *
  * name String Dynamic secret name
  * token String Access token
  * metadata String Metadata about the dynamic secret (optional)
+ * tag String List of the tags attached to this secret. To specify multiple tags use argument multiple times- -t Tag1 -t Tag2 (optional)
  * key String The name of a key that used to encrypt the dynamic secret values (if empty, the account default protectionKey key will be used) (optional)
  * returns ReplyObj
  **/
-exports.createDynamicSecret = function(name,token,metadata,key) {
+exports.createDynamicSecret = function(name,token,metadata,tag,key) {
   return new Promise(function(resolve, reject) {
     var examples = {};
     examples['application/json'] = {
@@ -315,17 +319,18 @@ exports.createDynamicSecret = function(name,token,metadata,key) {
 
 /**
  * Creates a new key
- * Creates a new key Options:   name -    Key name   alg -    Key type. options- [AES128GCM, AES256GCM, AES128SIV, AES256SIV, RSA1024, RSA2048]   metadata -    Metadata about the key   split-level -    The number of fragments that the item will be split into (not includes customer fragment)   customer-frg-id -    The customer fragment ID that will be used to create the key (if empty, the key will be created independently of a customer fragment)   token -    Access token
+ * Creates a new key Options:   name -    Key name   alg -    Key type. options- [AES128GCM, AES256GCM, AES128SIV, AES256SIV, RSA1024, RSA2048]   metadata -    Metadata about the key   tag -    List of the tags attached to this key. To specify multiple tags use argument multiple times- -t Tag1 -t Tag2   split-level -    The number of fragments that the item will be split into (not includes customer fragment)   customer-frg-id -    The customer fragment ID that will be used to create the key (if empty, the key will be created independently of a customer fragment)   token -    Access token
  *
  * name String Key name
  * alg String Key type. options- [AES128GCM, AES256GCM, AES128SIV, AES256SIV, RSA1024, RSA2048]
  * token String Access token
  * metadata String Metadata about the key (optional)
+ * tag String List of the tags attached to this key. To specify multiple tags use argument multiple times- -t Tag1 -t Tag2 (optional)
  * splitLevel String The number of fragments that the item will be split into (not includes customer fragment) (optional)
  * customerFrgId String The customer fragment ID that will be used to create the key (if empty, the key will be created independently of a customer fragment) (optional)
  * returns ReplyObj
  **/
-exports.createKey = function(name,alg,token,metadata,splitLevel,customerFrgId) {
+exports.createKey = function(name,alg,token,metadata,tag,splitLevel,customerFrgId) {
   return new Promise(function(resolve, reject) {
     var examples = {};
     examples['application/json'] = {
@@ -418,17 +423,18 @@ exports.createRole = function(name,token,comment) {
 
 /**
  * Creates a new secret item
- * Creates a new secret item Options:   name -    Secret name   value -    The secret value   metadata -    Metadata about the secret   key -    The name of a key that used to encrypt the secret value (if empty, the account default protectionKey key will be used)   multiline -    The provided value is a multiline value (separated by '\\n')   token -    Access token
+ * Creates a new secret item Options:   name -    Secret name   value -    The secret value   metadata -    Metadata about the secret   tag -    List of the tags attached to this secret. To specify multiple tags use argument multiple times- -t Tag1 -t Tag2   key -    The name of a key that used to encrypt the secret value (if empty, the account default protectionKey key will be used)   multiline -    The provided value is a multiline value (separated by '\\n')   token -    Access token
  *
  * name String Secret name
  * value String The secret value
  * token String Access token
  * metadata String Metadata about the secret (optional)
+ * tag String List of the tags attached to this secret. To specify multiple tags use argument multiple times- -t Tag1 -t Tag2 (optional)
  * key String The name of a key that used to encrypt the secret value (if empty, the account default protectionKey key will be used) (optional)
  * multiline Boolean The provided value is a multiline value (separated by '\\n') (optional)
  * returns ReplyObj
  **/
-exports.createSecret = function(name,value,token,metadata,key,multiline) {
+exports.createSecret = function(name,value,token,metadata,tag,key,multiline) {
   return new Promise(function(resolve, reject) {
     var examples = {};
     examples['application/json'] = {
@@ -1103,17 +1109,18 @@ exports.listAuthMethods = function(token,paginationToken) {
 
 /**
  * Returns a list of all accessible items
- * Returns a list of all accessible items Options:   type -    The item types list of the requested items. In case it is empty, all types of items will be returned. options- [key, static-secret, dynamic-secret]   ItemsTypes -    ItemsTypes   filter -    Filter by item name or part of it   path -    Path to folder   pagination-token -    Next page reference   token -    Access token
+ * Returns a list of all accessible items Options:   type -    The item types list of the requested items. In case it is empty, all types of items will be returned. options- [key, static-secret, dynamic-secret]   ItemsTypes -    ItemsTypes   filter -    Filter by item name or part of it   tag -    Filter by item tag   path -    Path to folder   pagination-token -    Next page reference   token -    Access token
  *
  * token String Access token
  * type String The item types list of the requested items. In case it is empty, all types of items will be returned. options- [key, static-secret, dynamic-secret] (optional)
  * itemsTypes String ItemsTypes (optional)
  * filter String Filter by item name or part of it (optional)
+ * tag String Filter by item tag (optional)
  * path String Path to folder (optional)
  * paginationToken String Next page reference (optional)
  * returns ReplyObj
  **/
-exports.listItems = function(token,type,itemsTypes,filter,path,paginationToken) {
+exports.listItems = function(token,type,itemsTypes,filter,tag,path,paginationToken) {
   return new Promise(function(resolve, reject) {
     var examples = {};
     examples['application/json'] = {
@@ -1140,6 +1147,33 @@ exports.listItems = function(token,type,itemsTypes,filter,path,paginationToken) 
  * returns ReplyObj
  **/
 exports.listRoles = function(token,paginationToken) {
+  return new Promise(function(resolve, reject) {
+    var examples = {};
+    examples['application/json'] = {
+  "response" : "{}",
+  "command" : "command",
+  "status" : "status",
+  "token" : "token"
+};
+    if (Object.keys(examples).length > 0) {
+      resolve(examples[Object.keys(examples)[0]]);
+    } else {
+      resolve();
+    }
+  });
+}
+
+
+/**
+ * See which authentication methods have access to a particular object
+ * See which authentication methods have access to a particular object Options:   path -    Path to an object   type -    Type of object (item, am, role)   token -    Access token
+ *
+ * path String Path to an object
+ * type String Type of object (item, am, role)
+ * token String Access token
+ * returns ReplyObj
+ **/
+exports.reverseRbac = function(path,type,token) {
   return new Promise(function(resolve, reject) {
     var examples = {};
     examples['application/json'] = {
@@ -1264,15 +1298,17 @@ exports.update = function(token) {
 
 /**
  * Update item name and metadata
- * Update item name and metadata Options:   name -    Current item name   new-name -    New item name   new-metadata -    New item metadata   token -    Access token
+ * Update item name and metadata Options:   name -    Current item name   new-name -    New item name   new-metadata -    New item metadata   add-tag -    List of the new tags that will be attached to this item. To specify multiple tags use argument multiple times- --add-tag Tag1 --add-tag Tag2   rm-tag -    List of the existent tags that will be removed from this item. To specify multiple tags use argument multiple times- --rm-tag Tag1 --rm-tag Tag2   token -    Access token
  *
  * name String Current item name
  * token String Access token
  * newName String New item name (optional)
  * newMetadata String New item metadata (optional)
+ * addTag String List of the new tags that will be attached to this item. To specify multiple tags use argument multiple times- --add-tag Tag1 --add-tag Tag2 (optional)
+ * rmTag String List of the existent tags that will be removed from this item. To specify multiple tags use argument multiple times- --rm-tag Tag1 --rm-tag Tag2 (optional)
  * returns ReplyObj
  **/
-exports.updateItem = function(name,token,newName,newMetadata) {
+exports.updateItem = function(name,token,newName,newMetadata,addTag,rmTag) {
   return new Promise(function(resolve, reject) {
     var examples = {};
     examples['application/json'] = {
@@ -1349,19 +1385,20 @@ exports.updateSecretVal = function(name,value,token,key,multiline) {
 
 /**
  * Upload a PKCS#12 key and certificates
- * Upload a PKCS#12 key and certificates Options:   name -    Name of key to be created   in -    PKCS#12 input file (private key and certificate only)   passphrase -    Passphrase to unlock the pkcs#12 bundle   metadata -    A metadata about the key   split-level -    The number of fragments that the item will be split into   customer-frg-id -    The customer fragment ID that will be used to split the key (if empty, the key will be created independently of a customer fragment)   cert -    Path to a file that contain the certificate in a PEM format. If this parameter is not empty, the certificate will be taken from here and not from the PKCS#12 input file   token -    Access token
+ * Upload a PKCS#12 key and certificates Options:   name -    Name of key to be created   in -    PKCS#12 input file (private key and certificate only)   passphrase -    Passphrase to unlock the pkcs#12 bundle   metadata -    A metadata about the key   tag -    List of the tags attached to this key. To specify multiple tags use argument multiple times- -t Tag1 -t Tag2   split-level -    The number of fragments that the item will be split into   customer-frg-id -    The customer fragment ID that will be used to split the key (if empty, the key will be created independently of a customer fragment)   cert -    Path to a file that contain the certificate in a PEM format. If this parameter is not empty, the certificate will be taken from here and not from the PKCS#12 input file   token -    Access token
  *
  * name String Name of key to be created
  * _in String PKCS#12 input file (private key and certificate only)
  * passphrase String Passphrase to unlock the pkcs#12 bundle
  * token String Access token
  * metadata String A metadata about the key (optional)
+ * tag String List of the tags attached to this key. To specify multiple tags use argument multiple times- -t Tag1 -t Tag2 (optional)
  * splitLevel String The number of fragments that the item will be split into (optional)
  * customerFrgId String The customer fragment ID that will be used to split the key (if empty, the key will be created independently of a customer fragment) (optional)
  * cert String Path to a file that contain the certificate in a PEM format. If this parameter is not empty, the certificate will be taken from here and not from the PKCS#12 input file (optional)
  * returns ReplyObj
  **/
-exports.uploadPkcs12 = function(name,_in,passphrase,token,metadata,splitLevel,customerFrgId,cert) {
+exports.uploadPkcs12 = function(name,_in,passphrase,token,metadata,tag,splitLevel,customerFrgId,cert) {
   return new Promise(function(resolve, reject) {
     var examples = {};
     examples['application/json'] = {
@@ -1381,7 +1418,7 @@ exports.uploadPkcs12 = function(name,_in,passphrase,token,metadata,splitLevel,cu
 
 /**
  * Upload RSA key
- * Upload RSA key Options:   name -    Name of key to be created   alg -    Key type. options- [RSA1024, RSA2048]   rsa-key-file-path -    RSA private key file path   cert -    Path to a file that contain the certificate in a PEM format.   metadata -    A metadata about the key   split-level -    The number of fragments that the item will be split into   customer-frg-id -    The customer fragment ID that will be used to split the key (if empty, the key will be created independently of a customer fragment)   token -    Access token
+ * Upload RSA key Options:   name -    Name of key to be created   alg -    Key type. options- [RSA1024, RSA2048]   rsa-key-file-path -    RSA private key file path   cert -    Path to a file that contain the certificate in a PEM format.   metadata -    A metadata about the key   tag -    List of the tags attached to this key. To specify multiple tags use argument multiple times- -t Tag1 -t Tag2   split-level -    The number of fragments that the item will be split into   customer-frg-id -    The customer fragment ID that will be used to split the key (if empty, the key will be created independently of a customer fragment)   token -    Access token
  *
  * name String Name of key to be created
  * alg String Key type. options- [RSA1024, RSA2048]
@@ -1389,11 +1426,12 @@ exports.uploadPkcs12 = function(name,_in,passphrase,token,metadata,splitLevel,cu
  * token String Access token
  * cert String Path to a file that contain the certificate in a PEM format. (optional)
  * metadata String A metadata about the key (optional)
+ * tag String List of the tags attached to this key. To specify multiple tags use argument multiple times- -t Tag1 -t Tag2 (optional)
  * splitLevel String The number of fragments that the item will be split into (optional)
  * customerFrgId String The customer fragment ID that will be used to split the key (if empty, the key will be created independently of a customer fragment) (optional)
  * returns ReplyObj
  **/
-exports.uploadRsa = function(name,alg,rsaKeyFilePath,token,cert,metadata,splitLevel,customerFrgId) {
+exports.uploadRsa = function(name,alg,rsaKeyFilePath,token,cert,metadata,tag,splitLevel,customerFrgId) {
   return new Promise(function(resolve, reject) {
     var examples = {};
     examples['application/json'] = {

@@ -21,11 +21,12 @@ module.exports.auth = function auth (req, res, next) {
   var accessId = req.swagger.params['access-id'].value;
   var accessType = req.swagger.params['access-type'].value;
   var accessKey = req.swagger.params['access-key'].value;
+  var cloudId = req.swagger.params['cloud-id'].value;
+  var uid_token = req.swagger.params['uid_token'].value;
   var adminPassword = req.swagger.params['admin-password'].value;
   var adminEmail = req.swagger.params['admin-email'].value;
-  var cloudId = req.swagger.params['cloud-id'].value;
   var ldap_proxy_url = req.swagger.params['ldap_proxy_url'].value;
-  Default.auth(accessId,accessType,accessKey,adminPassword,adminEmail,cloudId,ldap_proxy_url)
+  Default.auth(accessId,accessType,accessKey,cloudId,uid_token,adminPassword,adminEmail,ldap_proxy_url)
     .then(function (response) {
       utils.writeJson(res, response);
     })
@@ -37,12 +38,13 @@ module.exports.auth = function auth (req, res, next) {
 module.exports.configure = function configure (req, res, next) {
   var accessId = req.swagger.params['access-id'].value;
   var accessKey = req.swagger.params['access-key'].value;
+  var accessType = req.swagger.params['access-type'].value;
   var adminPassword = req.swagger.params['admin-password'].value;
   var adminEmail = req.swagger.params['admin-email'].value;
-  var accessType = req.swagger.params['access-type'].value;
+  var uid_token = req.swagger.params['uid_token'].value;
   var ldap_proxy_url = req.swagger.params['ldap_proxy_url'].value;
   var azure_ad_object_id = req.swagger.params['azure_ad_object_id'].value;
-  Default.configure(accessId,accessKey,adminPassword,adminEmail,accessType,ldap_proxy_url,azure_ad_object_id)
+  Default.configure(accessId,accessKey,accessType,adminPassword,adminEmail,uid_token,ldap_proxy_url,azure_ad_object_id)
     .then(function (response) {
       utils.writeJson(res, response);
     })
@@ -149,10 +151,11 @@ module.exports.createAuthMethodOauth2 = function createAuthMethodOauth2 (req, re
 module.exports.createAuthMethodSaml = function createAuthMethodSaml (req, res, next) {
   var name = req.swagger.params['name'].value;
   var idpMetadataUrl = req.swagger.params['idp-metadata-url'].value;
+  var idpMetadataXml = req.swagger.params['idp-metadata-xml'].value;
   var token = req.swagger.params['token'].value;
   var accessExpires = req.swagger.params['access-expires'].value;
   var boundIps = req.swagger.params['bound-ips'].value;
-  Default.createAuthMethodSaml(name,idpMetadataUrl,token,accessExpires,boundIps)
+  Default.createAuthMethodSaml(name,idpMetadataUrl,idpMetadataXml,token,accessExpires,boundIps)
     .then(function (response) {
       utils.writeJson(res, response);
     })
@@ -165,8 +168,9 @@ module.exports.createDynamicSecret = function createDynamicSecret (req, res, nex
   var name = req.swagger.params['name'].value;
   var token = req.swagger.params['token'].value;
   var metadata = req.swagger.params['metadata'].value;
+  var tag = req.swagger.params['tag'].value;
   var key = req.swagger.params['key'].value;
-  Default.createDynamicSecret(name,token,metadata,key)
+  Default.createDynamicSecret(name,token,metadata,tag,key)
     .then(function (response) {
       utils.writeJson(res, response);
     })
@@ -180,9 +184,10 @@ module.exports.createKey = function createKey (req, res, next) {
   var alg = req.swagger.params['alg'].value;
   var token = req.swagger.params['token'].value;
   var metadata = req.swagger.params['metadata'].value;
+  var tag = req.swagger.params['tag'].value;
   var splitLevel = req.swagger.params['split-level'].value;
   var customerFrgId = req.swagger.params['customer-frg-id'].value;
-  Default.createKey(name,alg,token,metadata,splitLevel,customerFrgId)
+  Default.createKey(name,alg,token,metadata,tag,splitLevel,customerFrgId)
     .then(function (response) {
       utils.writeJson(res, response);
     })
@@ -241,9 +246,10 @@ module.exports.createSecret = function createSecret (req, res, next) {
   var value = req.swagger.params['value'].value;
   var token = req.swagger.params['token'].value;
   var metadata = req.swagger.params['metadata'].value;
+  var tag = req.swagger.params['tag'].value;
   var key = req.swagger.params['key'].value;
   var multiline = req.swagger.params['multiline'].value;
-  Default.createSecret(name,value,token,metadata,key,multiline)
+  Default.createSecret(name,value,token,metadata,tag,key,multiline)
     .then(function (response) {
       utils.writeJson(res, response);
     })
@@ -576,9 +582,10 @@ module.exports.listItems = function listItems (req, res, next) {
   var type = req.swagger.params['type'].value;
   var itemsTypes = req.swagger.params['ItemsTypes'].value;
   var filter = req.swagger.params['filter'].value;
+  var tag = req.swagger.params['tag'].value;
   var path = req.swagger.params['path'].value;
   var paginationToken = req.swagger.params['pagination-token'].value;
-  Default.listItems(token,type,itemsTypes,filter,path,paginationToken)
+  Default.listItems(token,type,itemsTypes,filter,tag,path,paginationToken)
     .then(function (response) {
       utils.writeJson(res, response);
     })
@@ -591,6 +598,19 @@ module.exports.listRoles = function listRoles (req, res, next) {
   var token = req.swagger.params['token'].value;
   var paginationToken = req.swagger.params['pagination-token'].value;
   Default.listRoles(token,paginationToken)
+    .then(function (response) {
+      utils.writeJson(res, response);
+    })
+    .catch(function (response) {
+      utils.writeJson(res, response);
+    });
+};
+
+module.exports.reverseRbac = function reverseRbac (req, res, next) {
+  var path = req.swagger.params['path'].value;
+  var type = req.swagger.params['type'].value;
+  var token = req.swagger.params['token'].value;
+  Default.reverseRbac(path,type,token)
     .then(function (response) {
       utils.writeJson(res, response);
     })
@@ -653,7 +673,9 @@ module.exports.updateItem = function updateItem (req, res, next) {
   var token = req.swagger.params['token'].value;
   var newName = req.swagger.params['new-name'].value;
   var newMetadata = req.swagger.params['new-metadata'].value;
-  Default.updateItem(name,token,newName,newMetadata)
+  var addTag = req.swagger.params['add-tag'].value;
+  var rmTag = req.swagger.params['rm-tag'].value;
+  Default.updateItem(name,token,newName,newMetadata,addTag,rmTag)
     .then(function (response) {
       utils.writeJson(res, response);
     })
@@ -697,10 +719,11 @@ module.exports.uploadPkcs12 = function uploadPkcs12 (req, res, next) {
   var passphrase = req.swagger.params['passphrase'].value;
   var token = req.swagger.params['token'].value;
   var metadata = req.swagger.params['metadata'].value;
+  var tag = req.swagger.params['tag'].value;
   var splitLevel = req.swagger.params['split-level'].value;
   var customerFrgId = req.swagger.params['customer-frg-id'].value;
   var cert = req.swagger.params['cert'].value;
-  Default.uploadPkcs12(name,_in,passphrase,token,metadata,splitLevel,customerFrgId,cert)
+  Default.uploadPkcs12(name,_in,passphrase,token,metadata,tag,splitLevel,customerFrgId,cert)
     .then(function (response) {
       utils.writeJson(res, response);
     })
@@ -716,9 +739,10 @@ module.exports.uploadRsa = function uploadRsa (req, res, next) {
   var token = req.swagger.params['token'].value;
   var cert = req.swagger.params['cert'].value;
   var metadata = req.swagger.params['metadata'].value;
+  var tag = req.swagger.params['tag'].value;
   var splitLevel = req.swagger.params['split-level'].value;
   var customerFrgId = req.swagger.params['customer-frg-id'].value;
-  Default.uploadRsa(name,alg,rsaKeyFilePath,token,cert,metadata,splitLevel,customerFrgId)
+  Default.uploadRsa(name,alg,rsaKeyFilePath,token,cert,metadata,tag,splitLevel,customerFrgId)
     .then(function (response) {
       utils.writeJson(res, response);
     })
